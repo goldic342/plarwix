@@ -5,6 +5,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 import jwt
 
 from admin.service import AdminService
+from admin.utils import verify_password
+from admin.model import UserBase
 from config import settings
 
 
@@ -14,9 +16,9 @@ class AuthService:
     def __init__(self, session: AsyncSession = None) -> None:
         self.session = session
 
-    async def authenticate_user(self, login: str, password: str):
+    async def authenticate_user(self, login: str, password: str) -> UserBase:
         user = await AdminService(self.session).get_by_login(login)
-        if not AdminService.verify_password(password, user.password):
+        if not verify_password(password, user.password):
             raise HTTPException(status_code=401, detail="Incorrect password")
         return user
 
@@ -36,7 +38,7 @@ class AuthService:
         return encoded_jwt
     
     @staticmethod
-    def create_refresh_token(data: dict):
+    def create_refresh_token(data: dict) -> str:
         to_encode = data.copy()
         expires_delta = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         if expires_delta:
@@ -50,7 +52,7 @@ class AuthService:
         return encoded_jwt
     
     @staticmethod
-    def verify_token(token: str, exception: HTTPException):
+    def verify_token(token: str, exception: HTTPException) -> dict | None:
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, settings.ALGORITHM)
             return payload

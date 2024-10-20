@@ -3,7 +3,12 @@ import re
 
 def validate_password(password: str) -> str:
     if not re.match(r"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$", password):
-        raise ValueError("The password does not match the conditions")
+        raise ValueError(
+                "Password must contain at least "
+                "one lower character, "
+                "one upper character, "
+                "digit and length have to be 8"
+            )
     return password
 
 

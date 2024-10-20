@@ -85,5 +85,5 @@ class BaseRepository(ABC):
             self.session.add(instance)
             await self.session.commit()
         except Exception as e:
-            return self.handle_db_error(e)
+            return self.handle_db_error(e, self.session)
         return instance

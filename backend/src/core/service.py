@@ -1,6 +1,6 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from repository import BaseRepository
+from core.repository import BaseRepository
 
 class BaseService:
     repository: BaseRepository = None

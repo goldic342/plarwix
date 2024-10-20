@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 import uuid
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker

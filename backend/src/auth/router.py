@@ -25,7 +25,7 @@ async def login_user(
 
 
 
-@router.get("/me")
+@router.get("/me", response_model=UserBase)
 async def get_me(
     current_user: UserBase = Depends(get_current_user),
 ) -> UserBase:

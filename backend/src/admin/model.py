@@ -29,4 +29,4 @@ class RequestModel(SQLModel, table=True):
 
     id: Optional[uuid.UUID] = uuid_id
     message: str = Field(min_items=1)
-    status: RequestStatus
+    status: Optional[RequestStatus] = Field(default=RequestStatus.PENDING)
