@@ -1,4 +1,5 @@
 from typing import Optional
+import uuid
 from pydantic import BaseModel, field_validator
 
 from admin.model import RequestStatus, UserBase
@@ -19,8 +20,9 @@ class SRequestCreate(BaseModel):
     message: str
 
 class SRequestUpdate(BaseModel):
-    id: str
+    id: uuid.UUID
     status: RequestStatus
+    handled_by_user_id: uuid.UUID
 
 
 class SUserUpdate(UserBase):

@@ -25,5 +25,5 @@ async def get_session() -> AsyncSession: # type: ignore
 class Base(SQLModel):
     __abstract__ = True
     
-    created_at: datetime =  created_at
-    edited_at: datetime = edited_at
+    created_at: datetime | None =  created_at
+    edited_at: datetime | None = edited_at

@@ -24,10 +24,11 @@ async def get_current_user(
         refresh_token = request.cookies.get("refresh_token")
         if not refresh_token:
             raise credentials_exception
-        payload = AuthService.verify_token(refresh_token)
+        payload = AuthService.verify_token(refresh_token, credentials_exception)
         if payload is None:
             raise credentials_exception
     login = payload.get("sub")
+
     if login is None:
         raise credentials_exception
     user = await AdminService(session).get_by_login(login)

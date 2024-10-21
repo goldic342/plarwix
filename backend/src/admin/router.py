@@ -1,11 +1,14 @@
+import uuid
 from fastapi import APIRouter, Depends, status
+from fastapi.params import Query
 from fastapi.responses import JSONResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
+from fastapi_cache.decorator import cache
 
 from admin.schemas import SRequestCreate, SRequestUpdate, SUserCreate, SUserUpdate
 from auth.depends import get_current_superuser
 from auth.service import AuthService
-from admin.model import RequestModel, UserBase
+from admin.model import RequestModel, RequestStatus, UserBase
 from database import get_session
 from admin.service import AdminService
 
@@ -53,14 +56,18 @@ async def get_all_users(session: AsyncSession = Depends(get_session)) -> list[Us
 
 
 @router.get(
-    "/request",
+    "/request/all",
     dependencies=[Depends(get_current_superuser)],
     response_model=list[RequestModel],
 )
+@cache(expire=60*5)
 async def get_all_request(
+    filter_by_status: RequestStatus | None = None,
+    filter_by_user_id: uuid.UUID | None = None,
     session: AsyncSession = Depends(get_session),
 ) -> list[RequestModel]:
-    return await AdminService(session).get_all_requests()
+    result =  await AdminService(session).get_all_requests(filter_by_status, filter_by_user_id)
+    return result
 
 
 @router.post("/request/add", response_model=RequestModel)
@@ -74,7 +81,7 @@ async def get_all_request(
 async def update_request(
     request: SRequestUpdate, session: AsyncSession = Depends(get_session)
 ) -> RequestModel:
-    return await AdminService(session).request_update(request)
+    return await AdminService(session).update_request(request)
 
 
 @router.get(

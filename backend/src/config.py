@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASSWORD: str
 
+    REDIS_URL: str
+
     ADMIN_PASSWORD: str
 
     SECRET_KEY: str

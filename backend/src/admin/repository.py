@@ -1,3 +1,4 @@
+import uuid
 from admin.schemas import SRequestCreate, SRequestUpdate
 from sqlmodel import select
 from admin.model import RequestModel, RequestStatus, UserBase, UserModel
@@ -24,9 +25,13 @@ class UserRepository(BaseRepository):
         except Exception as e:
             self.handle_db_error(e, self.session)
 
-    async def get_all_requests(self) -> list[RequestModel]:
+    async def get_all_requests(self, filter_by_status: RequestStatus | None, filter_by_user_id: uuid.UUID | None = None) -> list[RequestModel]:
         try:
-            query = select(RequestModel).filter_by(status=RequestStatus.PENDING)
+            query = select(RequestModel)
+            if filter_by_status:
+               query = query.filter_by(status=filter_by_status)
+            if filter_by_user_id:
+                query = query.filter_by(handled_by_user_id=filter_by_user_id)
             result = await self.session.exec(query)
             return result.all()
         except Exception as e:
@@ -47,6 +52,7 @@ class UserRepository(BaseRepository):
             result = await self.session.exec(query)
             instance = result.one()
             instance.status = request.status
+            instance.handled_by_user_id = request.handled_by_user_id
             self.session.add(instance)
             await self.session.commit()
         except Exception as e:
