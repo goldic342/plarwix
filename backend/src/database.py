@@ -1,14 +1,17 @@
 from datetime import datetime
 import uuid
+from pymongo import MongoClient
+from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo.server_api import ServerApi
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlmodel import Field, SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 
-from config import get_db_url
+from config import get_db_url, get_mongo_db_url
 
-
+# POSTGRESQL settings
 DATABASE_URL = get_db_url()
 
 engine = create_async_engine(DATABASE_URL)
@@ -27,3 +30,10 @@ class Base(SQLModel):
     
     created_at: datetime | None =  created_at
     edited_at: datetime | None = edited_at
+
+# MONGODB settings
+MONGODB_URL = get_mongo_db_url()
+
+# client = AsyncIOMotorClient(MONGODB_URL, server_api=ServerApi(version="1"))
+
+# async def get_mongodb_session()

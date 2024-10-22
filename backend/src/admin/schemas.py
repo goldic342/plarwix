@@ -9,18 +9,26 @@ from admin.validators import validate_login, validate_password
 
 class SUserCreate(UserBase):
     password: str | bytes
-    _is_alpha = field_validator('first_name', 'last_name', 'second_name')(check_is_alpha)
-    _validate_login = field_validator('login')(validate_login)
-    _validate_password = field_validator('password')(validate_password)
+    _is_alpha = field_validator("first_name", "last_name", "second_name")(
+        check_is_alpha
+    )
+    _validate_login = field_validator("login")(validate_login)
+    _validate_password = field_validator("password")(validate_password)
+
+
+class SUser(UserBase):
+    id: uuid.UUID
+
 
 class SAdminCreate(UserBase):
     password: str | bytes
 
+
 class SRequestCreate(BaseModel):
     message: str
 
+
 class SRequestUpdate(BaseModel):
-    id: uuid.UUID
     status: RequestStatus
     handled_by_user_id: uuid.UUID
 

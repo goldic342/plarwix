@@ -18,7 +18,7 @@ class BaseService:
         return await self.repository(self.session).add(**values)
     
     async def delete(self, id: str):
-        await self.repository(self.session).delete(id)
+        return await self.repository(self.session).delete(id)
 
-    async def update(self, **values):
-        return await self.repository(self.session).update(**values)
+    async def update(self, id: str, **values):
+        return await self.repository(self.session).update(id, **values)

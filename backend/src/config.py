@@ -9,7 +9,13 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASSWORD: str
 
-    REDIS_URL: str
+    MONGODB_USERNAME: str
+    MONGODB_PASSWORD: str
+    MONGODB_CLUSTER: str
+    MONGODB_APPNAME: str
+
+    REDIS_HOST: str
+    REDIS_PORT: str
 
     ADMIN_PASSWORD: str
 
@@ -34,3 +40,7 @@ def get_db_url():
         f"postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASSWORD}@"
         f"{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
     )
+
+def get_mongo_db_url():
+    return(f"mongodb+srv://{settings.MONGODB_USERNAME}:{settings.MONGODB_PASSWORD}@"
+           f"{settings.MONGODB_CLUSTER}/?retryWrites=true&w=majority&appName={settings.MONGODB_APPNAME}")

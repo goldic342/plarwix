@@ -5,16 +5,24 @@ from fastapi.responses import JSONResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi_cache.decorator import cache
 
-from admin.schemas import SRequestCreate, SRequestUpdate, SUserCreate, SUserUpdate
+from admin.schemas import (
+    SRequestCreate,
+    SRequestUpdate,
+    SUser,
+    SUserCreate,
+    SUserUpdate,
+)
 from auth.depends import get_current_superuser
 from auth.service import AuthService
-from admin.model import RequestModel, RequestStatus, UserBase
+from admin.model import RequestModel, RequestStatus
+from utils.cache import get_seconds
 from database import get_session
 from admin.service import AdminService
 
 router = APIRouter(prefix="/admin")
 
 
+# user endpoints
 @router.post(
     "/add",
     dependencies=[Depends(get_current_superuser)],
@@ -42,56 +50,31 @@ async def delete_user(user_id: str, session: AsyncSession = Depends(get_session)
 
 
 @router.put(
-    "/update", dependencies=[Depends(get_current_superuser)], response_model=UserBase
-)
-async def update_user(user: SUserUpdate, session: AsyncSession = Depends(get_session)):
-    return await AdminService(session).update(**user.model_dump())
-
-
-@router.get(
-    "/all", dependencies=[Depends(get_current_superuser)], response_model=list[UserBase]
-)
-async def get_all_users(session: AsyncSession = Depends(get_session)) -> list[UserBase]:
-    return await AdminService(session).get_all()
-
-
-@router.get(
-    "/request/all",
+    "/update/{user_id}",
     dependencies=[Depends(get_current_superuser)],
-    response_model=list[RequestModel],
+    response_model=SUser,
 )
-@cache(expire=60*5)
-async def get_all_request(
-    filter_by_status: RequestStatus | None = None,
-    filter_by_user_id: uuid.UUID | None = None,
-    session: AsyncSession = Depends(get_session),
-) -> list[RequestModel]:
-    result =  await AdminService(session).get_all_requests(filter_by_status, filter_by_user_id)
-    return result
+async def update_user(
+    user_id: str, user: SUserUpdate, session: AsyncSession = Depends(get_session)
+):
+    return await AdminService(session).update(user_id, **user.model_dump())
 
 
-@router.post("/request/add", response_model=RequestModel)
-async def get_all_request(
-    request: SRequestCreate, session: AsyncSession = Depends(get_session)
-) -> RequestModel:
-    return await AdminService(session).add_request(request)
-
-
-@router.put("/request/update", response_model=RequestModel)
-async def update_request(
-    request: SRequestUpdate, session: AsyncSession = Depends(get_session)
-) -> RequestModel:
-    return await AdminService(session).update_request(request)
+@router.get(
+    "/all", dependencies=[Depends(get_current_superuser)], response_model=list[SUser]
+)
+async def get_all_users(session: AsyncSession = Depends(get_session)) -> list[SUser]:
+    return await AdminService(session).get_all()
 
 
 @router.get(
     "/id/{user_id}",
     dependencies=[Depends(get_current_superuser)],
-    response_model=UserBase,
+    response_model=SUser,
 )
 async def get_user_by_id(
     user_id: str, session: AsyncSession = Depends(get_session)
-) -> UserBase:
+) -> SUser:
     result = await AdminService(session).get_by_id(user_id)
     return result
 
@@ -99,10 +82,43 @@ async def get_user_by_id(
 @router.get(
     "/login/{login}",
     dependencies=[Depends(get_current_superuser)],
-    response_model=UserBase,
+    response_model=SUser,
 )
 async def get_user_by_login(
     login: str, session: AsyncSession = Depends(get_session)
-) -> UserBase:
+) -> SUser:
     result = await AdminService(session).get_by_login(login)
+    return result
+
+# request endpoints
+@router.post("/request/add", response_model=RequestModel)
+async def add_request(
+    request: SRequestCreate, session: AsyncSession = Depends(get_session)
+) -> RequestModel:
+    return await AdminService(session).add_request(request)
+
+
+@router.put("/request/update/{request_id}", response_model=RequestModel)
+async def update_request(
+    request_id: str,
+    request: SRequestUpdate,
+    session: AsyncSession = Depends(get_session),
+) -> RequestModel:
+    return await AdminService(session).update_request(request_id, request)
+
+
+@router.get(
+    "/request/all",
+    dependencies=[Depends(get_current_superuser)],
+    response_model=list[RequestModel],
+)
+@cache(expire=get_seconds(minutes=5))
+async def get_all_requests(
+    filter_by_status: RequestStatus | None = None,
+    filter_by_user_id: uuid.UUID | None = None,
+    session: AsyncSession = Depends(get_session),
+) -> list[RequestModel]:
+    result = await AdminService(session).get_all_requests(
+        filter_by_status, filter_by_user_id
+    )
     return result
