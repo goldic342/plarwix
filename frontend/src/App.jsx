@@ -1,7 +1,10 @@
-import { Text } from '@chakra-ui/react'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { publicRoutes } from './routes/routes'
+
+const router = createBrowserRouter(publicRoutes)
 
 const App = () => {
-	return <Text>Hello!</Text>
+	return <RouterProvider router={router} />
 }
 
 export default App
