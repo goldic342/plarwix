@@ -5,7 +5,8 @@ FASTAPI backend for PLARWIX
 ## Features
 
 - Auth: Auth system with jwt token
-- Admin: Admin system, admin can crud user and request
+- Admin: Admin system, admin can crud user and request, subject, class
+- Task: User can create task within class
 - Caching: Caching with redis
 
 ## Prerequisites
@@ -27,7 +28,7 @@ You define settings in .env file, for example you have .env.example file
  - Redis: host, port
  - Admin: login, password
  - JWT: secret key, algorithm, access token expire minutes, refresh token expire days
- - ENVIRONMENT: like prod or dev
+ - ENVIRONMENT: like dev or test, if test then jwt token will be off
 
 ## Running the Application
 To start the FastAPI application, run following command in src folder:

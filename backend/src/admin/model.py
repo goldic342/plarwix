@@ -1,8 +1,8 @@
-from enum import Enum
-from typing import List, Optional
+from typing import Optional
 import uuid
 
 from sqlmodel import Field, Relationship, SQLModel
+
 from database import Base, uuid_id
 
 
@@ -22,20 +22,5 @@ class UserModel(Base, UserBase, table=True):
 
     requests: list["RequestModel"] = Relationship(back_populates="handled_by_user")
 
+from request.model import RequestModel
 
-class RequestStatus(str, Enum):
-    ACCEPTED = "ACCEPTED"
-    DECLINED = "DECLINED"
-    PENDING = "PENDING"
-
-
-class RequestModel(SQLModel, table=True):
-    __tablename__ = "requests"
-
-    id: Optional[uuid.UUID] = uuid_id
-    message: str = Field(min_length=1)
-    status: Optional[RequestStatus] = Field(default=RequestStatus.PENDING)
-    handled_by_user_id: Optional[uuid.UUID] = Field(
-        default=None, foreign_key="users.id"
-    )
-    handled_by_user: Optional[UserModel] = Relationship(back_populates="requests")

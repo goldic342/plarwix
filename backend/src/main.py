@@ -15,6 +15,10 @@ from admin.router import router as admin_router
 from admin.service import AdminService
 from admin.schemas import SAdminCreate
 from auth.router import router as auth_router
+from request.router import router as request_router
+from subject.router import router as subject_router
+from clas.router import router as clas_router
+from task.router import router as task_router
 
 
 @asynccontextmanager
@@ -26,7 +30,7 @@ async def lifespan(_: FastAPI):
             admin = SAdminCreate(
                 first_name="admin",
                 last_name="admin",
-                login="admin",
+                login=settings.ADMIN_LOGIN,
                 password=settings.ADMIN_PASSWORD,
                 is_superuser=True,
             )
@@ -47,3 +51,7 @@ def main_page():
 
 app.include_router(admin_router)
 app.include_router(auth_router)
+app.include_router(request_router)
+app.include_router(subject_router)
+app.include_router(clas_router)
+app.include_router(task_router)

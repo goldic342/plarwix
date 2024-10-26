@@ -37,8 +37,8 @@ async def get_current_user(
     return user
 
 async def get_current_superuser(
-    user= Depends(get_current_user)
-):
+    user: UserBase = Depends(get_current_user)
+) -> UserBase:
     if not user.is_superuser:
         raise HTTPException(
             status_code=403, detail='Superuser access required')

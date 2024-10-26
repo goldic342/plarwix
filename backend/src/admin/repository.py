@@ -1,7 +1,6 @@
-import uuid
-from admin.schemas import SRequestCreate, SRequestUpdate, SUser
+from admin.schemas import SUser
 from sqlmodel import select
-from admin.model import RequestModel, RequestStatus, UserModel
+from admin.model import UserModel
 from core.repository import BaseRepository
 from sqlalchemy.exc import IntegrityError, NoResultFound
 
@@ -24,46 +23,5 @@ class UserRepository(BaseRepository):
             return result.one()
         except Exception as e:
             await self.handle_db_error(e, self.session)
-
-
-    async def add_request(self, request: SRequestCreate) -> RequestModel:
-        try:
-            request = RequestModel(
-                message=request.message, status=RequestStatus.PENDING
-            )
-            self.session.add(request)
-            await self.session.commit()
-        except Exception as e:
-            await self.handle_db_error(e, self.session)
-        return request
-
-    async def update_request(
-        self, request_id: str, request: SRequestUpdate
-    ) -> RequestModel:
-        try:
-            query = select(RequestModel).filter_by(id=request_id)
-            result = await self.session.exec(query)
-            instance = result.one()
-            instance.status = request.status
-            instance.handled_by_user_id = request.handled_by_user_id
-            self.session.add(instance)
-            await self.session.commit()
-        except Exception as e:
-            await self.handle_db_error(e, self.session)
-        return instance
     
-    async def get_all_requests(
-        self,
-        filter_by_status: RequestStatus | None,
-        filter_by_user_id: uuid.UUID | None = None,
-    ) -> list[RequestModel]:
-        try:
-            query = select(RequestModel)
-            if filter_by_status:
-                query = query.filter_by(status=filter_by_status)
-            if filter_by_user_id:
-                query = query.filter_by(handled_by_user_id=filter_by_user_id)
-            result = await self.session.exec(query)
-            return result.all()
-        except Exception as e:
-            await self.handle_db_error(e, self.session)
+    
